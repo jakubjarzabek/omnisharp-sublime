@@ -170,8 +170,10 @@ def close_omnisharp_server_subprocess(view, cb=None):
         print(statusmsg)
 
         solution_path = current_solution_filepath_or_project_rootpath(active_view())
-        server_ports.pop(solution_path)
-        launcher_procs.pop(solution_path)
+        if solution_path in server_ports:
+            server_ports.pop(solution_path)
+        if solution_path in launcher_procs:
+            launcher_procs.pop(solution_path)
 
         if cb:
             cb()
