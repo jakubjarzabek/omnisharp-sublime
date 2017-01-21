@@ -1,16 +1,47 @@
 import sublime_plugin, sublime, json, webbrowser
 import re
 from time import time
+from ..lib import omnisharp
+from ..lib import helpers
 
 class OmniSharpTooltipListener(sublime_plugin.EventListener):
 
     next_run_time = 0
 
     def on_activated(self, view):
+        if not helpers.is_csharp(view):
+            return
         self._check_tooltip_after_delay(view)
 
     def on_modified(self, view):
+        if not helpers.is_csharp(view):
+            return
+
         self._check_tooltip_after_delay(view)
+
+    def on_hover(self, view, point, hover_zone):
+        if not helpers.is_csharp(view):
+            return
+        if hover_zone != sublime.HOVER_TEXT:
+            return
+
+        self._show_documentation_after_delay(view, point)
+
+    def _show_documentation_after_delay(self, view, point):
+        timeout_ms = 400
+        self.next_run_time = time() + 0.0009 * timeout_ms
+        sublime.set_timeout(lambda:self._show_documentation_after_delay_callback(view, point), timeout_ms)
+
+    def _show_documentation_after_delay_callback(self, view, point):
+        if self.next_run_time > time():
+            return
+
+        if view.window() == None:
+            return
+
+        line, column = view.rowcol(point)
+        extraParams = {'includeDocumentation': True, 'line': line, 'column': column}
+        omnisharp.get_response(view, '/typelookup', lambda data: self._showTooltip(view, point, data), extraParams)
 
     def on_selection_modified(self, view):
         self._check_tooltip_after_delay(view)
@@ -23,6 +54,13 @@ class OmniSharpTooltipListener(sublime_plugin.EventListener):
     def _check_tooktip_after_delay_callback(self, view):
         if self.next_run_time <= time():
             self._check_tooltip(view)
+
+    def _showTooltip(self, view, point, data):
+        if data == None:
+            return
+        documentation = data['Documentation']
+        if documentation != None:
+            view.show_popup(documentation, location=point, max_width=600, on_navigate=self.on_navigate)
 
     def _check_tooltip(self, view):
 
