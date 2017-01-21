@@ -56,12 +56,27 @@ class OmniSharpTooltipListener(sublime_plugin.EventListener):
         if self.next_run_time <= time():
             self._check_tooltip(view)
 
+    def encode_html(self, html):
+        return html.replace('<', '&lt;').replace('>', '&gt;')
+
     def _showTooltip(self, view, point, data):
         if data == None:
             return
+        type = data['Type']
+
+        html = ''
+        if type != None:
+            html = '<p><strong>{0}</strong></p>'.format(self.encode_html(type))
+
         documentation = data['Documentation']
+
         if documentation != None:
-            view.show_popup(documentation, location=point, max_width=600, on_navigate=self.on_navigate)
+            html = html + '<p>' + self.encode_html(documentation) + '</p>'
+
+        if len(html) > 0:
+            html = '<html><body id="omnisharp-tooltip"><style>p {margin-top:1px;margin-bottom:1px}</style>' + html + '</body></html>'
+            view.show_popup(html, location=point, max_width=600, on_navigate=self.on_navigate)
+            print(html)
 
     def _check_tooltip(self, view):
 
