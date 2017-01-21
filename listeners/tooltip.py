@@ -12,6 +12,7 @@ class OmniSharpTooltipListener(sublime_plugin.EventListener):
         if not helpers.is_csharp(view):
             return
         self._check_tooltip_after_delay(view)
+        view.settings().set('show_definitions', False)
 
     def on_modified(self, view):
         if not helpers.is_csharp(view):
