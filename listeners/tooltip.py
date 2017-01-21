@@ -40,7 +40,7 @@ class OmniSharpTooltipListener(sublime_plugin.EventListener):
             return
 
         line, column = view.rowcol(point)
-        extraParams = {'includeDocumentation': True, 'line': line, 'column': column}
+        extraParams = {'includeDocumentation': True, 'line': line + 1, 'column': column + 1}
         omnisharp.get_response(view, '/typelookup', lambda data: self._showTooltip(view, point, data), extraParams)
 
     def on_selection_modified(self, view):
