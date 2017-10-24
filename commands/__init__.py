@@ -25,6 +25,7 @@ from .navigate_code_issues import OmniSharpNextCodeIssue
 from .navigate_code_issues import OmniSharpLastCodeIssue
 from .swap_server import OmniSharpSelectVersion
 from .restart_server import OmniSharpRestartServer
+from .quick_navigation_context import OmniSharpQuickNavigationMenu
 __all__ = [
     'OmniSharpGoToDefinition',
     'OmniSharpRename',
@@ -52,5 +53,6 @@ __all__ = [
     'OmniSharpNextCodeIssue',
     'OmniSharpLastCodeIssue',
     'OmniSharpSelectVersion',
-    'OmniSharpRestartServer'
+    'OmniSharpRestartServer',
+    'OmniSharpQuickNavigationMenu'
 ]
