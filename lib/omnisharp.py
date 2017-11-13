@@ -63,10 +63,9 @@ class WorkerThread(threading.Thread):
             self.callback(None)
 
 
-def get_response(view, endpoint, callback, params=None, timeout=None):
+def get_response(view, endpoint, callback, params=None, timeout=None, needs_buffer=True):
     solution_path = current_solution_filepath_or_project_rootpath(view)
 
-    print('solution path: %s' % solution_path)
     if solution_path is None or solution_path not in server_ports:
         callback(None)
         return
@@ -77,7 +76,8 @@ def get_response(view, endpoint, callback, params=None, timeout=None):
     parameters = {}
     parameters['line'] = str(cursor[0] + 1)
     parameters['column'] = str(cursor[1] + 1)
-    parameters['buffer'] = view.substr(sublime.Region(0, view.size()))
+    if needs_buffer:
+        parameters['buffer'] = view.substr(sublime.Region(0, view.size()))
     parameters['filename'] = view.file_name()
 
     if params is not None:

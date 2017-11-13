@@ -26,6 +26,7 @@ from .navigate_code_issues import OmniSharpLastCodeIssue
 from .swap_server import OmniSharpSelectVersion
 from .restart_server import OmniSharpRestartServer
 from .quick_navigation_context import OmniSharpQuickNavigationMenu
+from .show_metadata import OmniSharpShowMetadata
 __all__ = [
     'OmniSharpGoToDefinition',
     'OmniSharpRename',
@@ -54,5 +55,6 @@ __all__ = [
     'OmniSharpLastCodeIssue',
     'OmniSharpSelectVersion',
     'OmniSharpRestartServer',
-    'OmniSharpQuickNavigationMenu'
+    'OmniSharpQuickNavigationMenu',
+    'OmniSharpShowMetadata'
 ]
