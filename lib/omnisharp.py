@@ -114,6 +114,20 @@ def restart_omnisharp_server_subprocess(view):
 
     close_omnisharp_server_subprocess(view, omnisharp_onclose_cb)
 
+def start_process(args):
+    server_proc = None
+    if os.name == "nt":
+        # linux subprocess module does not have STARTUPINFO
+        # so only use it if on Windows
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.SW_HIDE | subprocess.STARTF_USESHOWWINDOW
+        server_proc = subprocess.Popen(args,
+                                             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, startupinfo=si, bufsize=-1)
+    else:
+        print("opening " + node_path + " " + script_path)
+        server_proc = subprocess.Popen(args,
+                                             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, bufsize=-1)
+    return server_proc
 
 def create_omnisharp_server_subprocess(view):
     set_omnisharp_status("Server Starting")
@@ -137,8 +151,8 @@ def create_omnisharp_server_subprocess(view):
             config_file = get_config_path(view)
 
             args = [
-                quote_path(omni_exe_path),
-                '-s', quote_path(solution_path),
+                omni_exe_path,
+                '-s', solution_path,
                 '-p', str(omni_port),
                 '--hostPID', str(os.getpid())
             ]
@@ -150,8 +164,12 @@ def create_omnisharp_server_subprocess(view):
             cmd = ' '.join(args)
             print(cmd)
 
-            view.window().run_command("exec", {"cmd": cmd, "shell": "true", "quiet": "true"})
+            start_process(args)
             view.window().run_command("hide_panel", {"panel": "output.exec"})
+
+            fn = view.file_name()
+            file_name = '' if fn is None else fn
+            print('Starting server: ' + view.name() + ' ' + file_name)
 
             set_omnisharp_status("Loading Project")
             sublime.set_timeout(lambda: check_solution_ready_status(view), 5000)
@@ -187,7 +205,7 @@ def set_omnisharp_status(statusmsg):
 
 
 def check_solution_ready_status(view):
-    get_response(view, "/checkreadystatus", ready_status_handler)
+    get_response(view, "/checkreadystatus", ready_status_handler, needs_buffer=False)
 
 
 def ready_status_handler(data):
